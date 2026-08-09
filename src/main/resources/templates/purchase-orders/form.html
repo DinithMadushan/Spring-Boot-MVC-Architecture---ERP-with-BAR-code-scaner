@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${formTitle} + ' - Supermarket ERP'"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<div class="container">
+    <h2 th:text="${formTitle}"></h2>
+
+    <div th:if="${#lists.isEmpty(suppliers)}" class="alert alert-warning mt-3">
+        No suppliers exist yet. <a th:href="@{/suppliers/new}">Add a supplier first</a>.
+    </div>
+    <div th:if="${#lists.isEmpty(products)}" class="alert alert-warning mt-3">
+        No products exist yet. <a th:href="@{/products/new}">Add a product first</a>.
+    </div>
+
+    <form th:action="@{/purchase-orders/save}" method="post" class="mt-3">
+        <input type="hidden" name="id" th:value="${po.id}" />
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Supplier</label>
+                <select name="supplierId" class="form-select" required>
+                    <option value="">-- Select Supplier --</option>
+                    <option th:each="s : ${suppliers}" th:value="${s.id}" th:text="${s.name}"
+                            th:selected="${po.supplier != null and po.supplier.id == s.id}"></option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Order Date</label>
+                <input type="date" name="orderDate" class="form-control"
+                       th:value="${po.orderDate}" required />
+            </div>
+        </div>
+
+        <h5 class="mt-4">Line Items</h5>
+        <table class="table table-bordered" id="itemsTable">
+            <thead class="table-light">
+            <tr>
+                <th>Product</th>
+                <th style="width:120px;">Quantity</th>
+                <th style="width:140px;">Unit Price</th>
+                <th style="width:60px;"></th>
+            </tr>
+            </thead>
+            <tbody id="itemsBody">
+            <!-- Existing items (edit mode) -->
+            <tr class="item-row" th:each="item : ${po.items}">
+                <td>
+                    <select name="productIds" class="form-select" required>
+                        <option value="">-- Select Product --</option>
+                        <option th:each="p : ${products}" th:value="${p.id}" th:text="${p.name + ' (' + p.barcode + ')'}"
+                                th:selected="${item.product != null and item.product.id == p.id}"></option>
+                    </select>
+                </td>
+                <td><input type="number" name="orderedQuantities" min="1" class="form-control" th:value="${item.orderedQuantity}" required /></td>
+                <td><input type="number" step="0.01" name="unitPrices" min="0.01" class="form-control" th:value="${item.unitPrice}" required /></td>
+                <td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger remove-row">&times;</button></td>
+            </tr>
+            <!-- Blank starter row for a brand-new PO -->
+            <tr class="item-row" th:if="${#lists.isEmpty(po.items)}">
+                <td>
+                    <select name="productIds" class="form-select" required>
+                        <option value="">-- Select Product --</option>
+                        <option th:each="p : ${products}" th:value="${p.id}" th:text="${p.name + ' (' + p.barcode + ')'}"></option>
+                    </select>
+                </td>
+                <td><input type="number" name="orderedQuantities" min="1" class="form-control" required /></td>
+                <td><input type="number" step="0.01" name="unitPrices" min="0.01" class="form-control" required /></td>
+                <td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger remove-row">&times;</button></td>
+            </tr>
+            </tbody>
+        </table>
+        <button type="button" id="addRowBtn" class="btn btn-outline-secondary btn-sm mb-3">+ Add Item</button>
+
+        <div>
+            <button type="submit" class="btn btn-primary">Save Purchase Order</button>
+            <a th:href="@{/purchase-orders}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script th:inline="javascript">
+    document.getElementById('addRowBtn').addEventListener('click', function () {
+        const body = document.getElementById('itemsBody');
+        const firstRow = body.querySelector('.item-row');
+        const newRow = firstRow.cloneNode(true);
+        newRow.querySelectorAll('input').forEach(function (input) { input.value = ''; });
+        newRow.querySelectorAll('select').forEach(function (select) { select.value = ''; });
+        body.appendChild(newRow);
+    });
+
+    document.getElementById('itemsBody').addEventListener('click', function (e) {
+        if (e.target.classList.contains('remove-row')) {
+            const rows = document.querySelectorAll('.item-row');
+            if (rows.length > 1) {
+                e.target.closest('tr').remove();
+            } else {
+                alert('A purchase order needs at least one line item.');
+            }
+        }
+    });
+</script>
+</body>
+</html>
