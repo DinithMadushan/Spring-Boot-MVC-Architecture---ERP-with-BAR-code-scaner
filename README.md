@@ -1,7 +1,8 @@
 # Supermarket Chain ERP System
 
 Spring Boot MVC application for a supermarket chain, covering **Product Management**
-(with barcode support) and **Supplier Management**, fully integrated with each other.
+(with barcode support), **Supplier Management**, **Purchase Orders (PO)**, and
+**Goods Received Notes (GRN)** - all integrated with each other.
 
 ## Tech Stack
 
@@ -21,13 +22,35 @@ Controller  ->  Service (interface + impl)  ->  Repository (Spring Data JPA)  ->
 Thymeleaf Views (templates/)
 ```
 
-- **entity** — `Product`, `Supplier` (JPA entities, `@ManyToOne`/`@OneToMany` relationship)
-- **repository** — `ProductRepository`, `SupplierRepository` (Spring Data JPA)
-- **service** — `ProductService`, `SupplierService` interfaces + `impl` implementations
-- **controller** — `ProductController`, `SupplierController`, `HomeController`
+- **entity** — `Product`, `Supplier`, `PurchaseOrder`, `PurchaseOrderItem`,
+  `GoodsReceivedNote`, `GrnItem` (JPA entities with `@ManyToOne`/`@OneToMany` relationships)
+- **repository** — `ProductRepository`, `SupplierRepository`, `PurchaseOrderRepository`,
+  `GoodsReceivedNoteRepository` (Spring Data JPA)
+- **service** — `ProductService`, `SupplierService`, `PurchaseOrderService`,
+  `GoodsReceivedNoteService` — each an interface + `impl` implementation
+- **controller** — `ProductController`, `SupplierController`, `PurchaseOrderController`,
+  `GoodsReceivedNoteController`, `HomeController`
 - **config** — `WebConfig` registers the `Supplier` <-> id `Formatter` used by the product
   form's supplier dropdown
-- **templates** — Thymeleaf views: `products/`, `suppliers/`, shared `fragments/navbar`
+- **templates** — Thymeleaf views: `products/`, `suppliers/`, `purchase-orders/`, `grn/`,
+  shared `fragments/navbar`
+
+## Purchase Order (PO) and GRN modules
+
+**Purchase Order** — a header (`PurchaseOrder`: PO number, supplier, order date, status)
+with one or more line items (`PurchaseOrderItem`: product, quantity ordered, unit price).
+PO numbers auto-generate as `PO-<year>-<sequence>`. A PO can only be edited or deleted
+while it is still `PENDING` and nothing has been received against it yet.
+
+**Goods Received Note** — records what was actually delivered against a PO.
+Creating a GRN (`GoodsReceivedNoteService.receiveGoods`) does three things in one
+transaction:
+1. Creates the `GoodsReceivedNote` and its `GrnItem` lines
+2. Increases each received product's stock via `ProductService.increaseStock(...)`
+3. Updates the PO's `receivedQuantity` per line and recalculates its overall status
+   (`PENDING` → `PARTIALLY_RECEIVED` → `RECEIVED`)
+
+This chains all four modules together: **Supplier → Purchase Order → GRN → Product stock**.
 
 ## Integration between modules
 
@@ -60,7 +83,7 @@ attached — the controller checks `hasLinkedProducts()` and shows a friendly er
 
 5. **Open the app:** http://localhost:8080
 
-## Feature checklist (maps to assignment requirements)
+## Feature checklist
 
 - [x] Supplier entity (`entity/Supplier.java`)
 - [x] Add Supplier — `GET /suppliers/new`, `POST /suppliers/save`
@@ -70,11 +93,10 @@ attached — the controller checks `hasLinkedProducts()` and shows a friendly er
 - [x] Input validation — Jakarta Bean Validation annotations + Thymeleaf error display
 - [x] Integration with Product module — `Product.supplier` (`@ManyToOne`), dropdown on
       the product form, products shown per supplier count in the supplier list
+- [x] Purchase Order module — Add/View/Edit/Delete, multi-line items, supplier link
+- [x] GRN module — receive goods against a PO, updates Product stock and PO status
 - [x] Spring Boot MVC architecture — Controller / Service / Repository / Entity layers
 - [x] MySQL storage — Spring Data JPA + `mysql-connector-j`
 
-## Suggested next steps before submission
-
-1. Test all CRUD flows locally (add/edit/delete for both Products and Suppliers).
-2. `git init`, commit, push to your own GitHub repository.
-3. Submit the repository link via the LMS.
+## Support
+      dinithmadushan38@gmail.com

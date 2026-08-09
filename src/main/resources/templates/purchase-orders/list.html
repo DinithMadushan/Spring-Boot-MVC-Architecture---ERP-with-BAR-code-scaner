@@ -36,7 +36,7 @@
             <td th:text="${po.poNumber}"></td>
             <td th:text="${po.supplier.name}"></td>
             <td th:text="${po.orderDate}"></td>
-            <td th:text="${'$' + po.totalAmount}"></td>
+            <td th:text="${'Rs.' + po.totalAmount}"></td>
             <td>
                 <span class="badge"
                       th:classappend="${po.status.name() == 'PENDING'} ? 'bg-secondary' :
