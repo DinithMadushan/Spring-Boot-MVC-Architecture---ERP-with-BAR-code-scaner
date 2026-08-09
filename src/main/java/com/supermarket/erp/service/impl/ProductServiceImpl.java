@@ -60,4 +60,11 @@ public class ProductServiceImpl implements ProductService {
         } while (productRepository.existsByBarcode(candidate));
         return candidate;
     }
+
+    @Override
+    public Product increaseStock(Long productId, int quantity) {
+        Product product = getProductById(productId);
+        product.setQuantity(product.getQuantity() + quantity);
+        return productRepository.save(product);
+    }
 }
