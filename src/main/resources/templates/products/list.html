@@ -38,7 +38,7 @@
             <td th:text="${product.id}"></td>
             <td th:text="${product.name}"></td>
             <td th:text="${product.barcode}"></td>
-            <td th:text="${'$' + product.price}"></td>
+            <td th:text="${'Rs.' + product.price}"></td>
             <td th:text="${product.quantity}"></td>
             <td th:text="${product.category}"></td>
             <td th:text="${product.supplier != null ? product.supplier.name : '-'}"></td>
