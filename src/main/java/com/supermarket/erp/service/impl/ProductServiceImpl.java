@@ -45,9 +45,6 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.existsByBarcode(barcode);
     }
 
-    /**
-     * Generates a unique 12-digit numeric barcode (EAN-like) not already in use.
-     */
     @Override
     public String generateBarcode() {
         String candidate;
@@ -59,12 +56,5 @@ public class ProductServiceImpl implements ProductService {
             candidate = sb.toString();
         } while (productRepository.existsByBarcode(candidate));
         return candidate;
-    }
-
-    @Override
-    public Product increaseStock(Long productId, int quantity) {
-        Product product = getProductById(productId);
-        product.setQuantity(product.getQuantity() + quantity);
-        return productRepository.save(product);
     }
 }

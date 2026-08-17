@@ -14,6 +14,6 @@ public interface SupplierService {
 
     void deleteSupplier(Long id);
 
-    boolean hasLinkedProducts(Long id);
+    boolean hasLinkedPurchaseOrders(Long id);
 
 }
