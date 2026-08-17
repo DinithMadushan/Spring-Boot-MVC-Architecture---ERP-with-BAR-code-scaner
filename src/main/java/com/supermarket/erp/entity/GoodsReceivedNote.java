@@ -1,7 +1,6 @@
 package com.supermarket.erp.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
@@ -28,17 +27,25 @@ public class GoodsReceivedNote {
     @Column(name = "received_date", nullable = false)
     private LocalDate receivedDate;
 
-    @NotBlank(message = "Received by is required")
-    @Column(name = "received_by", nullable = false, length = 100)
-    private String receivedBy;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "received_by", nullable = false)
+    @NotNull(message = "Received by user is required")
+    private User receivedBy;
+
+    // The location the received stock was put into (used to update Inventory)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "location_id", nullable = false)
+    @NotNull(message = "Location is required")
+    private Location location;
+
+    @Column(nullable = false, length = 20)
+    private String status = "COMPLETED";
 
     @OneToMany(mappedBy = "grn", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<GrnItem> items = new ArrayList<>();
 
     public GoodsReceivedNote() {
     }
-
-    // Getters and Setters
 
     public Long getId() {
         return id;
@@ -72,12 +79,28 @@ public class GoodsReceivedNote {
         this.receivedDate = receivedDate;
     }
 
-    public String getReceivedBy() {
+    public User getReceivedBy() {
         return receivedBy;
     }
 
-    public void setReceivedBy(String receivedBy) {
+    public void setReceivedBy(User receivedBy) {
         this.receivedBy = receivedBy;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public List<GrnItem> getItems() {
