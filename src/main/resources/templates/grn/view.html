@@ -19,7 +19,8 @@
         </div>
         <div class="col-md-3"><strong>Supplier:</strong> <span th:text="${grn.purchaseOrder.supplier.name}"></span></div>
         <div class="col-md-3"><strong>Received Date:</strong> <span th:text="${grn.receivedDate}"></span></div>
-        <div class="col-md-3"><strong>Received By:</strong> <span th:text="${grn.receivedBy}"></span></div>
+        <div class="col-md-3"><strong>Received By:</strong> <span th:text="${grn.receivedBy.fullName}"></span></div>
+        <div class="col-md-3"><strong>Location:</strong> <span th:text="${grn.location.locationName}"></span></div>
     </div>
 
     <table class="table table-bordered">

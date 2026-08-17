@@ -18,14 +18,18 @@
 
         <div class="row g-3 mb-3">
             <div class="col-md-6">
-                <label class="form-label">Received By</label>
-                <input type="text" name="receivedBy" class="form-control" placeholder="Name of receiver" required />
+                <label class="form-label">Receive Into Location</label>
+                <select name="locationId" class="form-select" required>
+                    <option value="">-- Select Location --</option>
+                    <option th:each="loc : ${locations}" th:value="${loc.id}" th:text="${loc.locationName}"></option>
+                </select>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Received Date</label>
                 <input type="date" name="receivedDate" class="form-control" th:value="${today}" required />
             </div>
         </div>
+        <p class="text-muted small">Received by will be recorded as your logged-in user.</p>
 
         <table class="table table-bordered align-middle">
             <thead class="table-light">

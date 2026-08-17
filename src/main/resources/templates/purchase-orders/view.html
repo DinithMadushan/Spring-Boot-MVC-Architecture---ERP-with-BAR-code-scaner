@@ -14,9 +14,15 @@
     </div>
 
     <div class="row mb-4">
-        <div class="col-md-4"><strong>Supplier:</strong> <span th:text="${po.supplier.name}"></span></div>
-        <div class="col-md-4"><strong>Order Date:</strong> <span th:text="${po.orderDate}"></span></div>
-        <div class="col-md-4"><strong>Status:</strong> <span th:text="${po.status}"></span></div>
+        <div class="col-md-3"><strong>Supplier:</strong> <span th:text="${po.supplier.name}"></span></div>
+        <div class="col-md-3"><strong>Order Date:</strong> <span th:text="${po.orderDate}"></span></div>
+        <div class="col-md-3"><strong>Status:</strong> <span th:text="${po.status}"></span></div>
+        <div class="col-md-3"><strong>Created By:</strong> <span th:text="${po.createdBy != null ? po.createdBy.fullName : '-'}"></span></div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-3"><strong>Approved By:</strong>
+            <span th:text="${po.approvedBy != null ? po.approvedBy.fullName : 'Not yet approved'}"></span>
+        </div>
     </div>
 
     <table class="table table-bordered">
@@ -36,18 +42,19 @@
             <td th:text="${item.orderedQuantity}"></td>
             <td th:text="${item.receivedQuantity}"></td>
             <td th:text="${item.remainingQuantity}"></td>
-            <td th:text="${'Rs.' + item.unitPrice}"></td>
-            <td th:text="${'Rs.' + item.lineTotal}"></td>
+            <td th:text="${'Rs. ' + item.unitPrice}"></td>
+            <td th:text="${'Rs. ' + item.lineTotal}"></td>
         </tr>
         </tbody>
         <tfoot>
         <tr>
             <td colspan="5" class="text-end"><strong>Total</strong></td>
-            <td><strong th:text="${'Rs.' + po.totalAmount}"></strong></td>
+            <td><strong th:text="${'Rs. ' + po.totalAmount}"></strong></td>
         </tr>
         </tfoot>
     </table>
 
+    <a th:if="${po.approvedBy == null}" th:href="@{/purchase-orders/approve/{id}(id=${po.id})}" class="btn btn-outline-success">Approve</a>
     <a th:if="${po.receivable}" th:href="@{/grn/new/{id}(id=${po.id})}" class="btn btn-primary">Receive Goods (Create GRN)</a>
 </div>
 </body>

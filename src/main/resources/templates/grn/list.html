@@ -24,6 +24,7 @@
             <th>Purchase Order</th>
             <th>Supplier</th>
             <th>Received Date</th>
+            <th>Location</th>
             <th>Received By</th>
             <th>Actions</th>
         </tr>
@@ -37,7 +38,8 @@
             <td th:text="${grn.purchaseOrder.poNumber}"></td>
             <td th:text="${grn.purchaseOrder.supplier.name}"></td>
             <td th:text="${grn.receivedDate}"></td>
-            <td th:text="${grn.receivedBy}"></td>
+            <td th:text="${grn.location.locationName}"></td>
+            <td th:text="${grn.receivedBy.fullName}"></td>
             <td>
                 <a th:href="@{/grn/view/{id}(id=${grn.id})}" class="btn btn-sm btn-info">View</a>
             </td>
