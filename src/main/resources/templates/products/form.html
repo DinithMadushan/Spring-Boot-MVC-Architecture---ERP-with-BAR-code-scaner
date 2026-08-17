@@ -10,10 +10,6 @@
 <div class="container">
     <h2 th:text="${formTitle}"></h2>
 
-    <div th:if="${#lists.isEmpty(suppliers)}" class="alert alert-warning mt-3">
-        No suppliers exist yet. <a th:href="@{/suppliers/new}">Add a supplier first</a> before creating a product.
-    </div>
-
     <form th:action="@{/products/save}" th:object="${product}" method="post" class="row g-3 mt-2" novalidate>
         <input type="hidden" th:field="*{id}" />
 
@@ -28,42 +24,55 @@
             <label class="form-label">Barcode</label>
             <input type="text" th:field="*{barcode}" class="form-control"
                    th:classappend="${#fields.hasErrors('barcode')} ? 'is-invalid'" />
-            <div class="form-text">Auto-generated; you may edit it if you scanned an existing barcode.</div>
             <div class="invalid-feedback" th:if="${#fields.hasErrors('barcode')}" th:errors="*{barcode}"></div>
         </div>
 
-        <div class="col-md-4">
-            <label class="form-label">Price</label>
-            <input type="number" step="0.01" th:field="*{price}" class="form-control"
-                   th:classappend="${#fields.hasErrors('price')} ? 'is-invalid'" />
-            <div class="invalid-feedback" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
-        </div>
-
-        <div class="col-md-4">
-            <label class="form-label">Quantity</label>
-            <input type="number" th:field="*{quantity}" class="form-control"
-                   th:classappend="${#fields.hasErrors('quantity')} ? 'is-invalid'" />
-            <div class="invalid-feedback" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></div>
-        </div>
-
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label class="form-label">Category</label>
             <input type="text" th:field="*{category}" class="form-control"
                    th:classappend="${#fields.hasErrors('category')} ? 'is-invalid'" />
             <div class="invalid-feedback" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div>
         </div>
 
-        <div class="col-md-6">
-            <label class="form-label">Supplier</label>
-            <select th:field="*{supplier}" class="form-select"
-                    th:classappend="${#fields.hasErrors('supplier')} ? 'is-invalid'">
-                <option value="">-- Select Supplier --</option>
-                <option th:each="s : ${suppliers}" th:value="${s.id}" th:text="${s.name}"></option>
+        <div class="col-md-3">
+            <label class="form-label">Brand</label>
+            <input type="text" th:field="*{brand}" class="form-control" />
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Size</label>
+            <input type="text" th:field="*{size}" class="form-control" />
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Color</label>
+            <input type="text" th:field="*{color}" class="form-control" />
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Purchase Price (Rs.)</label>
+            <input type="number" step="0.01" th:field="*{purchasePrice}" class="form-control"
+                   th:classappend="${#fields.hasErrors('purchasePrice')} ? 'is-invalid'" />
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('purchasePrice')}" th:errors="*{purchasePrice}"></div>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Selling Price (Rs.)</label>
+            <input type="number" step="0.01" th:field="*{sellingPrice}" class="form-control"
+                   th:classappend="${#fields.hasErrors('sellingPrice')} ? 'is-invalid'" />
+            <div class="invalid-feedback" th:if="${#fields.hasErrors('sellingPrice')}" th:errors="*{sellingPrice}"></div>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Status</label>
+            <select th:field="*{status}" class="form-select">
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="DISCONTINUED">DISCONTINUED</option>
             </select>
-            <div class="invalid-feedback" th:if="${#fields.hasErrors('supplier')}" th:errors="*{supplier}"></div>
         </div>
 
         <div class="col-12">
+            <p class="text-muted small">Stock quantity is managed separately per location under <a th:href="@{/inventory}">Inventory</a> (via Goods Received Notes and Sales).</p>
             <button type="submit" class="btn btn-primary">Save</button>
             <a th:href="@{/products}" class="btn btn-secondary">Cancel</a>
         </div>
