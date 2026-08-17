@@ -3,9 +3,12 @@ package com.supermarket.erp.controller;
 import com.supermarket.erp.entity.Product;
 import com.supermarket.erp.entity.PurchaseOrder;
 import com.supermarket.erp.entity.PurchaseOrderItem;
+import com.supermarket.erp.entity.User;
 import com.supermarket.erp.service.ProductService;
 import com.supermarket.erp.service.PurchaseOrderService;
 import com.supermarket.erp.service.SupplierService;
+import com.supermarket.erp.service.UserService;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -23,30 +26,30 @@ public class PurchaseOrderController {
     private final PurchaseOrderService purchaseOrderService;
     private final SupplierService supplierService;
     private final ProductService productService;
+    private final UserService userService;
 
     public PurchaseOrderController(PurchaseOrderService purchaseOrderService,
                                     SupplierService supplierService,
-                                    ProductService productService) {
+                                    ProductService productService,
+                                    UserService userService) {
         this.purchaseOrderService = purchaseOrderService;
         this.supplierService = supplierService;
         this.productService = productService;
+        this.userService = userService;
     }
 
-    // View PO list
     @GetMapping
     public String listPurchaseOrders(Model model) {
         model.addAttribute("purchaseOrders", purchaseOrderService.getAllPurchaseOrders());
         return "purchase-orders/list";
     }
 
-    // View a single PO with its items
     @GetMapping("/view/{id}")
     public String viewPurchaseOrder(@PathVariable Long id, Model model) {
         model.addAttribute("po", purchaseOrderService.getPurchaseOrderById(id));
         return "purchase-orders/view";
     }
 
-    // Show Add PO form
     @GetMapping("/new")
     public String showAddForm(Model model) {
         model.addAttribute("po", new PurchaseOrder());
@@ -56,7 +59,6 @@ public class PurchaseOrderController {
         return "purchase-orders/form";
     }
 
-    // Show Edit PO form (only allowed while PENDING with nothing received yet)
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         PurchaseOrder po = purchaseOrderService.getPurchaseOrderById(id);
@@ -72,7 +74,6 @@ public class PurchaseOrderController {
         return "purchase-orders/form";
     }
 
-    // Add or Update PO — line items are submitted as parallel arrays from the dynamic table
     @PostMapping("/save")
     public String savePurchaseOrder(@RequestParam(required = false) Long id,
                                      @RequestParam Long supplierId,
@@ -82,7 +83,7 @@ public class PurchaseOrderController {
                                      @RequestParam("productIds") List<Long> productIds,
                                      @RequestParam("orderedQuantities") List<Integer> orderedQuantities,
                                      @RequestParam("unitPrices") List<BigDecimal> unitPrices,
-                                     Model model,
+                                     Authentication authentication,
                                      RedirectAttributes redirectAttributes) {
 
         if (productIds.isEmpty()) {
@@ -93,6 +94,11 @@ public class PurchaseOrderController {
         PurchaseOrder po = (id != null) ? purchaseOrderService.getPurchaseOrderById(id) : new PurchaseOrder();
         po.setSupplier(supplierService.getSupplierById(supplierId));
         po.setOrderDate(orderDate != null ? orderDate : LocalDate.now());
+
+        if (po.getId() == null) {
+            User creator = userService.getByUsername(authentication.getName());
+            po.setCreatedBy(creator);
+        }
 
         List<PurchaseOrderItem> items = new ArrayList<>();
         for (int i = 0; i < productIds.size(); i++) {
@@ -108,7 +114,15 @@ public class PurchaseOrderController {
         return "redirect:/purchase-orders";
     }
 
-    // Delete PO (only allowed while editable)
+    @GetMapping("/approve/{id}")
+    public String approvePurchaseOrder(@PathVariable Long id, Authentication authentication,
+                                        RedirectAttributes redirectAttributes) {
+        User approver = userService.getByUsername(authentication.getName());
+        purchaseOrderService.approvePurchaseOrder(id, approver.getId());
+        redirectAttributes.addFlashAttribute("successMessage", "Purchase order approved.");
+        return "redirect:/purchase-orders/view/" + id;
+    }
+
     @GetMapping("/delete/{id}")
     public String deletePurchaseOrder(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {

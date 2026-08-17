@@ -18,9 +18,4 @@ public interface ProductService {
 
     String generateBarcode();
 
-    /**
-     * Increases a product's stock quantity, used when goods are received against a GRN.
-     */
-    Product increaseStock(Long productId, int quantity);
-
 }

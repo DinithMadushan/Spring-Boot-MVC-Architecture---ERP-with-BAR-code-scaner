@@ -48,6 +48,19 @@
             <div class="invalid-feedback" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></div>
         </div>
 
+        <div class="col-md-8">
+            <label class="form-label">Bank Details</label>
+            <input type="text" th:field="*{bankDetails}" class="form-control" placeholder="Bank name, account number, branch" />
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Status</label>
+            <select th:field="*{status}" class="form-select">
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="INACTIVE">INACTIVE</option>
+            </select>
+        </div>
+
         <div class="col-12">
             <button type="submit" class="btn btn-primary">Save</button>
             <a th:href="@{/suppliers}" class="btn btn-secondary">Cancel</a>

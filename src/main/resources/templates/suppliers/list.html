@@ -26,7 +26,7 @@
             <th>Phone</th>
             <th>Email</th>
             <th>Address</th>
-            <th># Products</th>
+            <th># Purchase Orders</th>
             <th>Actions</th>
         </tr>
         </thead>
@@ -41,7 +41,7 @@
             <td th:text="${supplier.phone}"></td>
             <td th:text="${supplier.email}"></td>
             <td th:text="${supplier.address}"></td>
-            <td th:text="${#lists.size(supplier.products)}"></td>
+            <td th:text="${#lists.size(supplier.purchaseOrders)}"></td>
             <td>
                 <a th:href="@{/suppliers/edit/{id}(id=${supplier.id})}" class="btn btn-sm btn-warning">Edit</a>
                 <a th:href="@{/suppliers/delete/{id}(id=${supplier.id})}"

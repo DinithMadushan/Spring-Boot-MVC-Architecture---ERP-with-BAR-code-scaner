@@ -39,8 +39,8 @@ public class SupplierServiceImpl implements SupplierService {
     }
 
     @Override
-    public boolean hasLinkedProducts(Long id) {
+    public boolean hasLinkedPurchaseOrders(Long id) {
         Supplier supplier = getSupplierById(id);
-        return supplier.getProducts() != null && !supplier.getProducts().isEmpty();
+        return supplier.getPurchaseOrders() != null && !supplier.getPurchaseOrders().isEmpty();
     }
 }

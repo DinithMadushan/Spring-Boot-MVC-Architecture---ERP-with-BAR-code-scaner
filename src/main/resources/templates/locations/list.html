@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Locations - Supermarket ERP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav th:replace="~{fragments/navbar :: navbar}"></nav>
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Locations (Branch / Store)</h2>
+        <a th:href="@{/locations/new}" class="btn btn-success">+ Add Location</a>
+    </div>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <table class="table table-striped table-bordered align-middle">
+        <thead class="table-dark">
+        <tr><th>ID</th><th>Name</th><th>Address</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+        <tr th:if="${#lists.isEmpty(locations)}">
+            <td colspan="4" class="text-center text-muted">No locations found.</td>
+        </tr>
+        <tr th:each="loc : ${locations}">
+            <td th:text="${loc.id}"></td>
+            <td th:text="${loc.locationName}"></td>
+            <td th:text="${loc.address}"></td>
+            <td>
+                <a th:href="@{/locations/edit/{id}(id=${loc.id})}" class="btn btn-sm btn-warning">Edit</a>
+                <a th:href="@{/locations/delete/{id}(id=${loc.id})}" class="btn btn-sm btn-danger"
+                   onclick="return confirm('Delete this location?');">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

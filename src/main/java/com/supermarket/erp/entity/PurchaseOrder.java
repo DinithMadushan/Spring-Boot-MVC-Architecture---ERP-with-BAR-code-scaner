@@ -29,6 +29,15 @@ public class PurchaseOrder {
     @Column(name = "order_date", nullable = false)
     private LocalDate orderDate;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "created_by", nullable = false)
+    @NotNull(message = "Created by user is required")
+    private User createdBy;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "approved_by")
+    private User approvedBy;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private PurchaseOrderStatus status = PurchaseOrderStatus.PENDING;
@@ -91,6 +100,22 @@ public class PurchaseOrder {
 
     public void setOrderDate(LocalDate orderDate) {
         this.orderDate = orderDate;
+    }
+
+    public User getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(User createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public User getApprovedBy() {
+        return approvedBy;
+    }
+
+    public void setApprovedBy(User approvedBy) {
+        this.approvedBy = approvedBy;
     }
 
     public PurchaseOrderStatus getStatus() {

@@ -22,26 +22,28 @@
         <tr>
             <th>ID</th>
             <th>Name</th>
-            <th>Barcode</th>
-            <th>Price</th>
-            <th>Quantity</th>
             <th>Category</th>
-            <th>Supplier</th>
+            <th>Brand</th>
+            <th>Barcode</th>
+            <th>Purchase Price</th>
+            <th>Selling Price</th>
+            <th>Status</th>
             <th>Actions</th>
         </tr>
         </thead>
         <tbody>
         <tr th:if="${#lists.isEmpty(products)}">
-            <td colspan="8" class="text-center text-muted">No products found. Add one to get started.</td>
+            <td colspan="9" class="text-center text-muted">No products found. Add one to get started.</td>
         </tr>
         <tr th:each="product : ${products}">
             <td th:text="${product.id}"></td>
             <td th:text="${product.name}"></td>
-            <td th:text="${product.barcode}"></td>
-            <td th:text="${'Rs.' + product.price}"></td>
-            <td th:text="${product.quantity}"></td>
             <td th:text="${product.category}"></td>
-            <td th:text="${product.supplier != null ? product.supplier.name : '-'}"></td>
+            <td th:text="${product.brand}"></td>
+            <td th:text="${product.barcode}"></td>
+            <td th:text="${'Rs. ' + product.purchasePrice}"></td>
+            <td th:text="${'Rs. ' + product.sellingPrice}"></td>
+            <td><span class="badge" th:classappend="${product.status == 'ACTIVE'} ? 'bg-success' : 'bg-secondary'" th:text="${product.status}"></span></td>
             <td>
                 <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-sm btn-warning">Edit</a>
                 <a th:href="@{/products/delete/{id}(id=${product.id})}"

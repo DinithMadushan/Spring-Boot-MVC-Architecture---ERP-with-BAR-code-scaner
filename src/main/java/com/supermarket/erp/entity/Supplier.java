@@ -39,9 +39,16 @@ public class Supplier {
     @Column(nullable = false)
     private String address;
 
-    // One supplier can supply many products
+    @Size(max = 255)
+    @Column(name = "bank_details")
+    private String bankDetails;
+
+    @Column(nullable = false, length = 20)
+    private String status = "ACTIVE";
+
+    // A supplier now links to Purchase Orders, not directly to Products
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, orphanRemoval = false)
-    private List<Product> products = new ArrayList<>();
+    private List<PurchaseOrder> purchaseOrders = new ArrayList<>();
 
     public Supplier() {
     }
@@ -104,11 +111,27 @@ public class Supplier {
         this.address = address;
     }
 
-    public List<Product> getProducts() {
-        return products;
+    public String getBankDetails() {
+        return bankDetails;
     }
 
-    public void setProducts(List<Product> products) {
-        this.products = products;
+    public void setBankDetails(String bankDetails) {
+        this.bankDetails = bankDetails;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public List<PurchaseOrder> getPurchaseOrders() {
+        return purchaseOrders;
+    }
+
+    public void setPurchaseOrders(List<PurchaseOrder> purchaseOrders) {
+        this.purchaseOrders = purchaseOrders;
     }
 }
