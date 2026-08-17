@@ -61,10 +61,10 @@ public class SupplierController {
     // Delete Supplier
     @GetMapping("/delete/{id}")
     public String deleteSupplier(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        if (supplierService.hasLinkedProducts(id)) {
+        if (supplierService.hasLinkedPurchaseOrders(id)) {
             redirectAttributes.addFlashAttribute("errorMessage",
-                    "Cannot delete this supplier because it still has products linked to it. " +
-                    "Reassign or delete those products first.");
+                    "Cannot delete this supplier because it still has purchase orders linked to it. " +
+                    "Cancel or remove those purchase orders first.");
             return "redirect:/suppliers";
         }
         supplierService.deleteSupplier(id);
