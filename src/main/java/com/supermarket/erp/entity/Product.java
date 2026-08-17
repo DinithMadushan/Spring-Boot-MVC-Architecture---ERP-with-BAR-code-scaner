@@ -14,45 +14,54 @@ public class Product {
 
     @NotBlank(message = "Product name is required")
     @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
-    @Column(nullable = false, length = 100)
+    @Column(name = "product_name", nullable = false, length = 100)
     private String name;
-
-    @NotBlank(message = "Barcode is required")
-    @Pattern(regexp = "^[0-9]{8,13}$", message = "Barcode must be 8 to 13 digits")
-    @Column(nullable = false, unique = true, length = 13)
-    private String barcode;
-
-    @NotNull(message = "Price is required")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
-    @Column(nullable = false)
-    private BigDecimal price;
-
-    @NotNull(message = "Quantity is required")
-    @Min(value = 0, message = "Quantity cannot be negative")
-    @Column(nullable = false)
-    private Integer quantity;
 
     @NotBlank(message = "Category is required")
     @Size(max = 50)
     @Column(nullable = false, length = 50)
     private String category;
 
-    // Integration point: every product belongs to a supplier
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "supplier_id", nullable = false)
-    @NotNull(message = "Supplier is required")
-    private Supplier supplier;
+    @Size(max = 50)
+    @Column(length = 50)
+    private String brand;
+
+    @Size(max = 20)
+    @Column(length = 20)
+    private String size;
+
+    @Size(max = 30)
+    @Column(length = 30)
+    private String color;
+
+    @NotBlank(message = "Barcode is required")
+    @Pattern(regexp = "^[0-9]{8,13}$", message = "Barcode must be 8 to 13 digits")
+    @Column(nullable = false, unique = true, length = 13)
+    private String barcode;
+
+    @NotNull(message = "Purchase price is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Purchase price must be greater than 0")
+    @Column(name = "purchase_price", nullable = false)
+    private BigDecimal purchasePrice;
+
+    @NotNull(message = "Selling price is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Selling price must be greater than 0")
+    @Column(name = "selling_price", nullable = false)
+    private BigDecimal sellingPrice;
+
+    // ACTIVE / DISCONTINUED — stock levels now live in Inventory, not here
+    @Column(nullable = false, length = 20)
+    private String status = "ACTIVE";
 
     public Product() {
     }
 
-    public Product(String name, String barcode, BigDecimal price, Integer quantity, String category, Supplier supplier) {
+    public Product(String name, String barcode, BigDecimal purchasePrice, BigDecimal sellingPrice, String category) {
         this.name = name;
         this.barcode = barcode;
-        this.price = price;
-        this.quantity = quantity;
+        this.purchasePrice = purchasePrice;
+        this.sellingPrice = sellingPrice;
         this.category = category;
-        this.supplier = supplier;
     }
 
     // Getters and Setters
@@ -73,30 +82,6 @@ public class Product {
         this.name = name;
     }
 
-    public String getBarcode() {
-        return barcode;
-    }
-
-    public void setBarcode(String barcode) {
-        this.barcode = barcode;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
     public String getCategory() {
         return category;
     }
@@ -105,11 +90,59 @@ public class Product {
         this.category = category;
     }
 
-    public Supplier getSupplier() {
-        return supplier;
+    public String getBrand() {
+        return brand;
     }
 
-    public void setSupplier(Supplier supplier) {
-        this.supplier = supplier;
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public String getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
+    }
+
+    public BigDecimal getPurchasePrice() {
+        return purchasePrice;
+    }
+
+    public void setPurchasePrice(BigDecimal purchasePrice) {
+        this.purchasePrice = purchasePrice;
+    }
+
+    public BigDecimal getSellingPrice() {
+        return sellingPrice;
+    }
+
+    public void setSellingPrice(BigDecimal sellingPrice) {
+        this.sellingPrice = sellingPrice;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
