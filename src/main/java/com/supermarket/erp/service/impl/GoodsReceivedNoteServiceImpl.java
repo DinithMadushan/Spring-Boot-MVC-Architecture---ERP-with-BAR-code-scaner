@@ -4,7 +4,9 @@ import com.supermarket.erp.entity.*;
 import com.supermarket.erp.repository.GoodsReceivedNoteRepository;
 import com.supermarket.erp.repository.PurchaseOrderRepository;
 import com.supermarket.erp.service.GoodsReceivedNoteService;
-import com.supermarket.erp.service.ProductService;
+import com.supermarket.erp.service.InventoryService;
+import com.supermarket.erp.service.LocationService;
+import com.supermarket.erp.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,14 +21,20 @@ public class GoodsReceivedNoteServiceImpl implements GoodsReceivedNoteService {
 
     private final GoodsReceivedNoteRepository grnRepository;
     private final PurchaseOrderRepository purchaseOrderRepository;
-    private final ProductService productService;
+    private final InventoryService inventoryService;
+    private final UserService userService;
+    private final LocationService locationService;
 
     public GoodsReceivedNoteServiceImpl(GoodsReceivedNoteRepository grnRepository,
                                          PurchaseOrderRepository purchaseOrderRepository,
-                                         ProductService productService) {
+                                         InventoryService inventoryService,
+                                         UserService userService,
+                                         LocationService locationService) {
         this.grnRepository = grnRepository;
         this.purchaseOrderRepository = purchaseOrderRepository;
-        this.productService = productService;
+        this.inventoryService = inventoryService;
+        this.userService = userService;
+        this.locationService = locationService;
     }
 
     @Override
@@ -42,8 +50,8 @@ public class GoodsReceivedNoteServiceImpl implements GoodsReceivedNoteService {
 
     @Override
     @Transactional
-    public GoodsReceivedNote receiveGoods(Long purchaseOrderId, String receivedBy, LocalDate receivedDate,
-                                           Map<Long, Integer> quantitiesByPoItemId) {
+    public GoodsReceivedNote receiveGoods(Long purchaseOrderId, Long receivedByUserId, Long locationId,
+                                           LocalDate receivedDate, Map<Long, Integer> quantitiesByPoItemId) {
 
         PurchaseOrder po = purchaseOrderRepository.findById(purchaseOrderId)
                 .orElseThrow(() -> new EntityNotFoundException("Purchase order not found with id: " + purchaseOrderId));
@@ -52,10 +60,14 @@ public class GoodsReceivedNoteServiceImpl implements GoodsReceivedNoteService {
             throw new IllegalStateException("This purchase order is not open to receive goods against.");
         }
 
+        User receivedBy = userService.getUserById(receivedByUserId);
+        Location location = locationService.getLocationById(locationId);
+
         GoodsReceivedNote grn = new GoodsReceivedNote();
         grn.setGrnNumber(generateGrnNumber());
         grn.setPurchaseOrder(po);
         grn.setReceivedBy(receivedBy);
+        grn.setLocation(location);
         grn.setReceivedDate(receivedDate != null ? receivedDate : LocalDate.now());
 
         boolean anyReceived = false;
@@ -63,7 +75,7 @@ public class GoodsReceivedNoteServiceImpl implements GoodsReceivedNoteService {
         for (PurchaseOrderItem poItem : po.getItems()) {
             Integer qtyNow = quantitiesByPoItemId.get(poItem.getId());
             if (qtyNow == null || qtyNow <= 0) {
-                continue; // nothing received for this line on this GRN
+                continue;
             }
             if (qtyNow > poItem.getRemainingQuantity()) {
                 throw new IllegalArgumentException(
@@ -71,15 +83,15 @@ public class GoodsReceivedNoteServiceImpl implements GoodsReceivedNoteService {
                         "' exceeds the remaining ordered quantity (" + poItem.getRemainingQuantity() + ").");
             }
 
-            GrnItem grnItem = new GrnItem(poItem, qtyNow);
+            GrnItem grnItem = new GrnItem(poItem, poItem.getProduct(), qtyNow);
             grnItem.setGrn(grn);
+            grnItem.setReceivedDate(grn.getReceivedDate());
             grn.getItems().add(grnItem);
 
-            // Update the PO line's received-so-far count
             poItem.setReceivedQuantity(poItem.getReceivedQuantity() + qtyNow);
 
-            // Push stock into the Product module — this is the integration point
-            productService.increaseStock(poItem.getProduct().getId(), qtyNow);
+            // Integration point: push stock into Inventory for this product + location
+            inventoryService.increaseStock(poItem.getProduct().getId(), locationId, qtyNow);
 
             anyReceived = true;
         }
@@ -88,7 +100,6 @@ public class GoodsReceivedNoteServiceImpl implements GoodsReceivedNoteService {
             throw new IllegalArgumentException("Enter a received quantity for at least one item.");
         }
 
-        // Recompute PO status based on how much of each line has now been received
         boolean allFullyReceived = po.getItems().stream()
                 .allMatch(i -> i.getRemainingQuantity() == 0);
         po.setStatus(allFullyReceived ? PurchaseOrderStatus.RECEIVED : PurchaseOrderStatus.PARTIALLY_RECEIVED);

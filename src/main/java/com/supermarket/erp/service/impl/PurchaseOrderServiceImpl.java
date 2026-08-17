@@ -3,8 +3,10 @@ package com.supermarket.erp.service.impl;
 import com.supermarket.erp.entity.PurchaseOrder;
 import com.supermarket.erp.entity.PurchaseOrderItem;
 import com.supermarket.erp.entity.PurchaseOrderStatus;
+import com.supermarket.erp.entity.User;
 import com.supermarket.erp.repository.PurchaseOrderRepository;
 import com.supermarket.erp.service.PurchaseOrderService;
+import com.supermarket.erp.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -16,9 +18,11 @@ import java.util.List;
 public class PurchaseOrderServiceImpl implements PurchaseOrderService {
 
     private final PurchaseOrderRepository purchaseOrderRepository;
+    private final UserService userService;
 
-    public PurchaseOrderServiceImpl(PurchaseOrderRepository purchaseOrderRepository) {
+    public PurchaseOrderServiceImpl(PurchaseOrderRepository purchaseOrderRepository, UserService userService) {
         this.purchaseOrderRepository = purchaseOrderRepository;
+        this.userService = userService;
     }
 
     @Override
@@ -70,5 +74,13 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         long countThisYear = purchaseOrderRepository.countByOrderDateBetween(
                 LocalDate.of(year, 1, 1), LocalDate.of(year, 12, 31));
         return String.format("PO-%d-%04d", year, countThisYear + 1);
+    }
+
+    @Override
+    public PurchaseOrder approvePurchaseOrder(Long id, Long approverUserId) {
+        PurchaseOrder po = getPurchaseOrderById(id);
+        User approver = userService.getUserById(approverUserId);
+        po.setApprovedBy(approver);
+        return purchaseOrderRepository.save(po);
     }
 }

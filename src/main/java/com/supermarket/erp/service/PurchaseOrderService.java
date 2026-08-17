@@ -22,4 +22,6 @@ public interface PurchaseOrderService {
 
     String generatePoNumber();
 
+    PurchaseOrder approvePurchaseOrder(Long id, Long approverUserId);
+
 }
